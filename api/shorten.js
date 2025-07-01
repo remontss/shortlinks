@@ -1,7 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
-
-const filePath = path.resolve('data/links.json');
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,17 +16,27 @@ export default async function handler(req, res) {
   }
 
   const code = Math.random().toString(36).substring(2, 8);
+  const setResponse = await fetch(`${KV_URL}/set/${code}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${KV_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(url)
+  });
 
-  const json = JSON.parse(await fs.readFile(filePath, 'utf8'));
-  json[code] = url;
-  await fs.writeFile(filePath, JSON.stringify(json, null, 2));
+  if (!setResponse.ok) {
+    return res.status(500).json({ error: 'Failed to save shortlink' });
+  }
 
-  const base = req.headers.host.startsWith('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`;
+  const baseUrl = req.headers.host?.includes('vercel.app')
+    ? `https://${req.headers.host}`
+    : 'https://shortlinks-pi.vercel.app';
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     code,
-    short: `${base}/${code}`,
+    short: `${baseUrl}/${code}`,
     original: url
   });
 }

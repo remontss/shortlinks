@@ -2,7 +2,7 @@ const KV_URL = process.env.KV_REST_API_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
 export default async function handler(req, res) {
-  const code = req.query.code;
+  const code = req.url.replace(/^\/+/, '').split('?')[0];
 
   if (!code) {
     return res.status(400).send('Code is missing');

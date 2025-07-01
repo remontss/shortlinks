@@ -1,9 +1,10 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
+import Database from 'better-sqlite3';
+
+let db;
 
 export async function getDB() {
-  return open({
-    filename: '/tmp/links.db',
-    driver: sqlite3.Database
-  });
+  if (!db) {
+    db = new Database('/tmp/links.db');
+  }
+  return db;
 }

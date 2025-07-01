@@ -1,19 +1,31 @@
-import fs from 'fs/promises';
-import path from 'path';
-
-const filePath = path.resolve('data/links.json');
+const KV_URL = process.env.KV_REST_API_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN;
 
 export default async function handler(req, res) {
   const code = req.query.code;
 
-  const json = JSON.parse(await fs.readFile(filePath, 'utf8'));
-  const url = json[code];
-
-  if (url) {
-    res.writeHead(302, { Location: url });
-    res.end();
-  } else {
-    res.statusCode = 404;
-    res.end('Shortlink not found');
+  if (!code) {
+    return res.status(400).send('Code is missing');
   }
+
+  const getResponse = await fetch(`${KV_URL}/get/${code}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${KV_TOKEN}`
+    }
+  });
+
+  if (!getResponse.ok) {
+    return res.status(404).send('Shortlink not found');
+  }
+
+  const data = await getResponse.json();
+  const url = data.result;
+
+  if (!url) {
+    return res.status(404).send('Shortlink not found');
+  }
+
+  res.writeHead(302, { Location: url });
+  res.end();
 }

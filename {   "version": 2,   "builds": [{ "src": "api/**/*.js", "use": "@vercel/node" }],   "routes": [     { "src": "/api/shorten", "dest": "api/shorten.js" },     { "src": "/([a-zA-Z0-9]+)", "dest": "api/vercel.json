@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "builds": [{ "src": "api/**/*.js", "use": "@vercel/node" }],
+  "routes": [
+    { "src": "/api/shorten", "dest": "api/shorten.js" },
+    { "src": "/([a-zA-Z0-9]+)", "dest": "api/redirect.js" }
+  ]
+}

@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
   const baseUrl = req.headers.host?.includes('vercel.app')
     ? `https://${req.headers.host}`
-    : 'https://short.example.com'; // ganti sesuai domain kamu
+    : 'https://shortlinks-pi.vercel.app/';
 
   return res.status(200).json({
     success: true,

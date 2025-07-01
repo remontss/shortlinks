@@ -13,7 +13,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ✅ FIXED: Manual body parser
   let body = '';
   await new Promise((resolve, reject) => {
     req.on('data', chunk => {
@@ -36,11 +35,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const db = await getDB();
-    await db.run(`CREATE TABLE IF NOT EXISTS links (
-      code TEXT PRIMARY KEY,
-      url TEXT NOT NULL
-    )`);
+const db = await getDB();
+db.prepare(`CREATE TABLE IF NOT EXISTS links (code TEXT PRIMARY KEY, url TEXT NOT NULL)`).run();
+db.prepare('INSERT INTO links (code, url) VALUES (?, ?)').run(code, url);
 
     const code = Math.random().toString(36).substring(2, 8);
     await db.run('INSERT INTO links (code, url) VALUES (?, ?)', [code, url]);

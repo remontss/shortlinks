@@ -1,7 +1,6 @@
 import { getDB } from '../utils/db.js';
 
 export default async function handler(req, res) {
-  // Ambil path code secara aman
   const code = req.query.code || req.url.replace('/', '').split('?')[0];
 
   if (!code) {
@@ -10,8 +9,8 @@ export default async function handler(req, res) {
     return;
   }
 
-  const db = await getDB();
-  const row = await db.get('SELECT url FROM links WHERE code = ?', [code]);
+const db = await getDB();
+const row = db.prepare('SELECT url FROM links WHERE code = ?').get(code);
 
   if (row) {
     res.writeHead(302, { Location: row.url });

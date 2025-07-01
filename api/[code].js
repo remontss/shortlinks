@@ -20,9 +20,11 @@ export default async function handler(req, res) {
   }
 
   const data = await getResponse.json();
-  const url = data.result;
 
-  if (!url) {
+  const rawUrl = data.result;
+  const url = typeof rawUrl === 'string' ? rawUrl.replace(/^"|"$/g, '') : '';
+
+  if (!url || !url.startsWith('http')) {
     return res.status(404).send('Shortlink not found');
   }
 
